@@ -713,10 +713,10 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     chartConfig = createBarChart(data);
                     break;
                 case 'histogram':
-                    chartConfig = createHistogram(data, 'size');
+                    chartConfig = createHistogram(data, 'size', logScale);
                     break;
                 case 'box':
-                    chartConfig = createHistogram(data, 'sampleCount');
+                    chartConfig = createHistogram(data, 'sampleCount', logScale);
                     break;
             }
 
@@ -860,8 +860,8 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             };
         }
 
-        function createHistogram(data, field) {
-            const values = data.map(item => item[field]);
+        function createHistogram(data, field, logScale) {
+            const values = data.map(item => item[field]).filter(v => v > 0);
             if (values.length === 0) {
                 return { 
                     type: 'bar', 
@@ -876,32 +876,63 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             const min = Math.min(...values);
             const max = Math.max(...values);
             
-            // Validate and constrain binCount
             let binCount = Math.sqrt(values.length);
             binCount = Math.min(20, Math.max(5, binCount));
             binCount = Math.floor(binCount);
             
-            // Ensure binCount is valid
             if (!Number.isFinite(binCount) || binCount <= 0) {
                 binCount = 10;
             }
             
-            const binSize = (max - min) / binCount;
-            
             const bins = Array(binCount).fill(0);
             const binLabels = [];
+            const isLogX = logScale === 'x' || logScale === 'both';
             
-            for (let i = 0; i < binCount; i++) {
-                const start = min + i * binSize;
-                const end = min + (i + 1) * binSize;
-                binLabels.push(start.toFixed(2) + '-' + end.toFixed(2));
+            if (isLogX && min > 0) {
+                // Logarithmic binning
+                const logMin = Math.log10(min);
+                const logMax = Math.log10(max);
+                const logBinSize = (logMax - logMin) / binCount;
+                const binEdges = [];
+                
+                for (let i = 0; i <= binCount; i++) {
+                    binEdges.push(Math.pow(10, logMin + i * logBinSize));
+                }
+                
+                for (let i = 0; i < binCount; i++) {
+                    const start = binEdges[i];
+                    const end = binEdges[i + 1];
+                    if (start < 1) {
+                        binLabels.push(start.toExponential(1) + '-' + (end < 1 ? end.toExponential(1) : end.toFixed(2)));
+                    } else {
+                        binLabels.push(start.toFixed(2) + '-' + end.toFixed(2));
+                    }
+                }
+                
+                values.forEach(value => {
+                    for (let i = 0; i < binCount; i++) {
+                        if (value >= binEdges[i] && (i === binCount - 1 || value < binEdges[i + 1])) {
+                            bins[i]++;
+                            break;
+                        }
+                    }
+                });
+            } else {
+                // Linear binning
+                const binSize = (max - min) / binCount;
+                
+                for (let i = 0; i < binCount; i++) {
+                    const start = min + i * binSize;
+                    const end = min + (i + 1) * binSize;
+                    binLabels.push(start.toFixed(2) + '-' + end.toFixed(2));
+                }
+                
+                values.forEach(value => {
+                    let binIndex = Math.floor((value - min) / binSize);
+                    if (binIndex === binCount) binIndex = binCount - 1;
+                    bins[binIndex]++;
+                });
             }
-            
-            values.forEach(value => {
-                let binIndex = Math.floor((value - min) / binSize);
-                if (binIndex === binCount) binIndex = binCount - 1;
-                bins[binIndex]++;
-            });
 
             const fieldLabel = field === 'size' ? 'Size' : 'Sample Count';
             const fieldUnit = field === 'size' ? 'Size (GB)' : 'Sample Count';
@@ -923,12 +954,14 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     maintainAspectRatio: false,
                     scales: {
                         x: {
+                            type: 'category',
                             title: {
                                 display: true,
-                                text: fieldUnit
+                                text: fieldUnit + (isLogX ? ' (Log Scale)' : '')
                             }
                         },
                         y: {
+                            type: logScale === 'y' || logScale === 'both' ? 'logarithmic' : 'linear',
                             title: {
                                 display: true,
                                 text: 'Frequency'
@@ -938,7 +971,7 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     plugins: {
                         title: {
                             display: true,
-                            text: fieldLabel + ' Distribution'
+                            text: fieldLabel + ' Distribution' + (isLogX ? ' (Log Binning)' : '')
                         }
                     }
                 }
