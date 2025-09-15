@@ -875,7 +875,17 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             
             const min = Math.min(...values);
             const max = Math.max(...values);
-            const binCount = Math.min(20, Math.max(5, Math.sqrt(values.length)));
+            
+            // Validate and constrain binCount
+            let binCount = Math.sqrt(values.length);
+            binCount = Math.min(20, Math.max(5, binCount));
+            binCount = Math.floor(binCount);
+            
+            // Ensure binCount is valid
+            if (!Number.isFinite(binCount) || binCount <= 0) {
+                binCount = 10;
+            }
+            
             const binSize = (max - min) / binCount;
             
             const bins = Array(binCount).fill(0);
