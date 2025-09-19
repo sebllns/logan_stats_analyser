@@ -289,9 +289,16 @@
             </div>
             
             <div class="control-group">
-                <label for="categoryFilter">Filter by Category:</label>
-                <select id="categoryFilter">
-                    <option value="all">All Categories</option>
+                <label for="techniqueFilter">Filter by Technique:</label>
+                <select id="techniqueFilter">
+                    <option value="all">All Techniques</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="typeFilter">Filter by Type:</label>
+                <select id="typeFilter">
+                    <option value="all">All Types</option>
                 </select>
             </div>
             
@@ -426,6 +433,8 @@
         let filteredData = [];
         let currentChart = null;
         let categories = new Set();
+        let techniques = new Set();
+        let types = new Set();
         let cart = [];
         let sortState = { column: null, direction: 'asc' };
 
@@ -604,6 +613,8 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             const lines = text.trim().split('\n');
             const data = [];
             categories.clear();
+            techniques.clear();
+            types.clear();
 
             lines.forEach(line => {
                 const parts = line.trim().split(/\s+/);
@@ -613,13 +624,20 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     const sampleCount = parseInt(parts[2]);
                     
                     const indexParts = index.split('_');
+                    let technique = 'OTHER';
+                    let type = 'OTHER';
                     let category = 'OTHER';
+                    
                     if (indexParts.length >= 2) {
-                        category = indexParts[0] + '_' + indexParts[1];
+                        technique = indexParts[0];
+                        type = indexParts[1];
+                        category = technique + '_' + type;
                     }
                     
+                    techniques.add(technique);
+                    types.add(type);
                     categories.add(category);
-                    data.push({ index, category, size, sampleCount });
+                    data.push({ index, category, technique, type, size, sampleCount });
                 }
             });
 
@@ -627,23 +645,39 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
         }
 
         function updateCategoryFilter() {
-            const select = document.getElementById('categoryFilter');
-            select.innerHTML = '<option value="all">All Categories</option>';
+            const techniqueSelect = document.getElementById('techniqueFilter');
+            const typeSelect = document.getElementById('typeFilter');
             
-            Array.from(categories).sort().forEach(category => {
+            // Clear existing options
+            techniqueSelect.innerHTML = '<option value="all">All Techniques</option>';
+            typeSelect.innerHTML = '<option value="all">All Types</option>';
+            
+            // Add technique options
+            Array.from(techniques).sort().forEach(technique => {
                 const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                select.appendChild(option);
+                option.value = technique;
+                option.textContent = technique;
+                techniqueSelect.appendChild(option);
+            });
+            
+            // Add type options
+            Array.from(types).sort().forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeSelect.appendChild(option);
             });
         }
 
         function getFilteredData() {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            if (categoryFilter === 'all') {
-                return [...currentData];
-            }
-            return currentData.filter(item => item.category === categoryFilter);
+            const techniqueFilter = document.getElementById('techniqueFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            
+            return currentData.filter(item => {
+                const techniqueMatch = techniqueFilter === 'all' || item.technique === techniqueFilter;
+                const typeMatch = typeFilter === 'all' || item.type === typeFilter;
+                return techniqueMatch && typeMatch;
+            });
         }
 
         function updateStats() {
@@ -654,7 +688,9 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                 (data.reduce((sum, item) => sum + item.size, 0)).toLocaleString() : '0';
             document.getElementById('totalSamples').textContent = 
                 data.reduce((sum, item) => sum + item.sampleCount, 0).toLocaleString();
-            document.getElementById('categoryCount').textContent = categories.size;
+            
+            const uniqueCategories = new Set(data.map(item => item.category)).size;
+            document.getElementById('categoryCount').textContent = uniqueCategories;
         }
 
         function updateTable() {
@@ -1013,7 +1049,8 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             }
         });
 
-        document.getElementById('categoryFilter').addEventListener('change', refreshView);
+        document.getElementById('techniqueFilter').addEventListener('change', refreshView);
+        document.getElementById('typeFilter').addEventListener('change', refreshView);
         document.getElementById('chartType').addEventListener('change', createChart);
         document.getElementById('logScale').addEventListener('change', createChart);
 
