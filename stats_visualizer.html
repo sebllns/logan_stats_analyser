@@ -42,7 +42,7 @@
             margin-bottom: 5px;
             color: #555;
         }
-        select, input[type="file"] {
+        select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -87,23 +87,6 @@
             background: #f8f9fa;
             border-radius: 6px;
         }
-        .add-all-button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .add-all-button:hover {
-            background: #218838;
-        }
-        .add-all-button:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
         .data-table {
             max-height: 400px;
             overflow-y: auto;
@@ -138,143 +121,6 @@
         tr:hover {
             background: #f5f5f5;
         }
-        .file-info {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        .cart-button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .cart-button:hover {
-            background: #218838;
-        }
-        .cart-icon {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-        .cart-icon:hover {
-            background: #0056b3;
-        }
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cart-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-        }
-        .cart-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80%;
-            overflow-y: auto;
-        }
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .close-cart {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-        .close-cart:hover {
-            color: #000;
-        }
-        .remove-item {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .remove-item:hover {
-            background: #c82333;
-        }
-        .cart-stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 20px 0;
-        }
-        .cart-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-        .export-button {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .export-button:hover {
-            background: #138496;
-        }
-        .clear-cart {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .clear-cart:hover {
-            background: #c82333;
-        }
     </style>
 </head>
 <body>
@@ -282,12 +128,6 @@
         <h1>Logan Stats Visualizer</h1>
         
         <div class="controls">
-            <div class="control-group">
-                <label for="fileInput">Load Data File:</label>
-                <input type="file" id="fileInput" accept=".txt">
-                <div id="fileInfo" class="file-info" style="display: none;"></div>
-            </div>
-            
             <div class="control-group">
                 <label for="techniqueFilter">Filter by Technique:</label>
                 <select id="techniqueFilter">
@@ -323,7 +163,7 @@
             </div>
         </div>
 
-        <div class="stats-panel" id="statsPanel">
+        <div class="stats-panel">
             <div class="stat-card">
                 <div class="stat-value" id="totalEntries">0</div>
                 <div class="stat-label">Total Entries</div>
@@ -350,9 +190,6 @@
             <div>
                 <strong>Data Table</strong> - Click column headers to sort
             </div>
-            <button class="add-all-button" id="addAllButton" onclick="addAllToCart()">
-                Add All to Cart
-            </button>
         </div>
 
         <div class="data-table">
@@ -363,68 +200,11 @@
                         <th onclick="sortTable('category')">Category<span class="sort-indicator" id="sort-category"></span></th>
                         <th onclick="sortTable('size')">Size (GB)<span class="sort-indicator" id="sort-size"></span></th>
                         <th onclick="sortTable('sampleCount')">Sample Count<span class="sort-indicator" id="sort-sampleCount"></span></th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <button class="cart-icon" id="cartIcon" onclick="openCart()">
-        🛒
-        <span class="cart-count" id="cartCount">0</span>
-    </button>
-
-    <div class="cart-modal" id="cartModal">
-        <div class="cart-content">
-            <div class="cart-header">
-                <h2>Data Cart</h2>
-                <button class="close-cart" onclick="closeCart()">&times;</button>
-            </div>
-            
-            <div class="cart-stats" id="cartStats">
-                <div class="stats-panel">
-                    <div class="stat-card">
-                        <div class="stat-value" id="cartTotalEntries">0</div>
-                        <div class="stat-label">Selected Entries</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="cartTotalSize">0</div>
-                        <div class="stat-label">Total Size (GB)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="cartTotalSamples">0</div>
-                        <div class="stat-label">Total Samples</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="cartCategories">0</div>
-                        <div class="stat-label">Unique Categories</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="data-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Index</th>
-                            <th>Category</th>
-                            <th>Size (GB)</th>
-                            <th>Sample Count</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cartTableBody">
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="cart-actions">
-                <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
-                <button class="export-button" onclick="exportCart()">Export Cart</button>
-            </div>
         </div>
     </div>
 
@@ -435,7 +215,6 @@
         let categories = new Set();
         let techniques = new Set();
         let types = new Set();
-        let cart = [];
         let sortState = { column: null, direction: 'asc' };
 
         const categoryColors = [
@@ -453,7 +232,17 @@ METATRANSCRIPTOMIC_BCT_15 0.02232 885
 METATRANSCRIPTOMIC_BCT_16 0.07270 1541
 METATRANSCRIPTOMIC_BCT_17 0.19424 2139
 METATRANSCRIPTOMIC_BCT_18 0.64459 3616
-METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
+METATRANSCRIPTOMIC_BCT_19 1.91000 5413
+GENOMIC_VIR_10 0.00150 25
+GENOMIC_VIR_11 0.00180 45
+GENOMIC_VIR_12 0.00220 80
+GENOMIC_VIR_13 0.00280 120
+GENOMIC_VIR_14 0.00350 180
+TRANSCRIPTOMIC_FUN_10 0.00120 15
+TRANSCRIPTOMIC_FUN_11 0.00140 30
+TRANSCRIPTOMIC_FUN_12 0.00170 50
+TRANSCRIPTOMIC_FUN_13 0.00200 75
+TRANSCRIPTOMIC_FUN_14 0.00250 110`;
 
         function sortTable(column) {
             if (sortState.column === column) {
@@ -501,114 +290,6 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             }
         }
 
-        function addAllToCart() {
-            let addedCount = 0;
-            filteredData.forEach(item => {
-                if (!cart.find(c => c.index === item.index)) {
-                    cart.push({...item});
-                    addedCount++;
-                }
-            });
-            
-            if (addedCount > 0) {
-                updateCartDisplay();
-                updateTable();
-            }
-        }
-
-        function addToCart(index) {
-            const item = currentData.find(d => d.index === index);
-            if (item && !cart.find(c => c.index === index)) {
-                cart.push({...item});
-                updateCartDisplay();
-                updateTable();
-            }
-        }
-
-        function removeFromCart(index) {
-            cart = cart.filter(item => item.index !== index);
-            updateCartDisplay();
-            updateCartTable();
-            updateTable();
-        }
-
-        function clearCart() {
-            cart = [];
-            updateCartDisplay();
-            updateCartTable();
-            updateTable();
-        }
-
-        function updateCartDisplay() {
-            document.getElementById('cartCount').textContent = cart.length;
-            
-            const totalSize = cart.reduce((sum, item) => sum + item.size, 0);
-            const totalSamples = cart.reduce((sum, item) => sum + item.sampleCount, 0);
-            const uniqueCategories = new Set(cart.map(item => item.category)).size;
-            
-            document.getElementById('cartTotalEntries').textContent = cart.length;
-            document.getElementById('cartTotalSize').textContent = totalSize.toLocaleString();
-            document.getElementById('cartTotalSamples').textContent = totalSamples.toLocaleString();
-            document.getElementById('cartCategories').textContent = uniqueCategories;
-        }
-
-        function updateCartTable() {
-            const tbody = document.getElementById('cartTableBody');
-            tbody.innerHTML = '';
-
-            cart.forEach(item => {
-                const row = tbody.insertRow();
-                row.insertCell(0).textContent = item.index;
-                row.insertCell(1).textContent = item.category;
-                row.insertCell(2).textContent = item.size.toFixed(5);
-                row.insertCell(3).textContent = item.sampleCount.toLocaleString();
-                
-                const actionCell = row.insertCell(4);
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'Remove';
-                removeBtn.className = 'remove-item';
-                removeBtn.onclick = () => removeFromCart(item.index);
-                actionCell.appendChild(removeBtn);
-            });
-        }
-
-        function openCart() {
-            updateCartTable();
-            document.getElementById('cartModal').style.display = 'block';
-        }
-
-        function closeCart() {
-            document.getElementById('cartModal').style.display = 'none';
-        }
-
-        function exportCart() {
-            if (cart.length === 0) {
-                alert('Cart is empty. Add items to cart before exporting.');
-                return;
-            }
-
-            const exportData = cart.map(item => 
-                `${item.index} ${item.size.toFixed(5)} ${item.sampleCount}`
-            ).join('\n');
-
-            const blob = new Blob([exportData], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `cart_export_${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('cartModal');
-            if (event.target === modal) {
-                closeCart();
-            }
-        }
-
         function parseData(text) {
             const lines = text.trim().split('\n');
             const data = [];
@@ -648,11 +329,9 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             const techniqueSelect = document.getElementById('techniqueFilter');
             const typeSelect = document.getElementById('typeFilter');
             
-            // Clear existing options
             techniqueSelect.innerHTML = '<option value="all">All Techniques</option>';
             typeSelect.innerHTML = '<option value="all">All Types</option>';
             
-            // Add technique options
             Array.from(techniques).sort().forEach(technique => {
                 const option = document.createElement('option');
                 option.value = technique;
@@ -660,7 +339,6 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                 techniqueSelect.appendChild(option);
             });
             
-            // Add type options
             Array.from(types).sort().forEach(type => {
                 const option = document.createElement('option');
                 option.value = type;
@@ -697,33 +375,12 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            const addAllBtn = document.getElementById('addAllButton');
-            const allInCart = filteredData.every(item => cart.find(c => c.index === item.index));
-            addAllBtn.textContent = allInCart ? 'All Added' : 'Add All to Cart';
-            addAllBtn.disabled = allInCart;
-
             filteredData.forEach(item => {
                 const row = tbody.insertRow();
                 row.insertCell(0).textContent = item.index;
                 row.insertCell(1).textContent = item.category;
                 row.insertCell(2).textContent = item.size.toFixed(5);
                 row.insertCell(3).textContent = item.sampleCount.toLocaleString();
-                
-                const actionCell = row.insertCell(4);
-                const cartBtn = document.createElement('button');
-                const isInCart = cart.find(c => c.index === item.index);
-                
-                if (isInCart) {
-                    cartBtn.textContent = 'Remove';
-                    cartBtn.className = 'cart-button';
-                    cartBtn.onclick = () => removeFromCart(item.index);
-                } else {
-                    cartBtn.textContent = 'Add';
-                    cartBtn.className = 'cart-button';
-                    cartBtn.onclick = () => addToCart(item.index);
-                }
-                
-                actionCell.appendChild(cartBtn);
             });
         }
 
@@ -925,7 +582,6 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             const isLogX = logScale === 'x' || logScale === 'both';
             
             if (isLogX && min > 0) {
-                // Logarithmic binning
                 const logMin = Math.log10(min);
                 const logMax = Math.log10(max);
                 const logBinSize = (logMax - logMin) / binCount;
@@ -954,7 +610,6 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     }
                 });
             } else {
-                // Linear binning
                 const binSize = (max - min) / binCount;
                 
                 for (let i = 0; i < binCount; i++) {
@@ -1007,27 +662,20 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
                     plugins: {
                         title: {
                             display: true,
-                            text: fieldLabel + ' Distribution' + (isLogX ? ' (Log Binning)' : '')
+                            text: fieldLabel + ' Distribution'
                         }
                     }
                 }
             };
         }
 
-        function loadData(text, filename = '') {
+        function loadData(text) {
             currentData = parseData(text);
             filteredData = getFilteredData();
             updateCategoryFilter();
             updateStats();
             updateTable();
             createChart();
-            updateCartDisplay();
-            
-            if (filename) {
-                document.getElementById('fileInfo').style.display = 'block';
-                document.getElementById('fileInfo').textContent = 
-                    'Loaded: ' + filename + ' (' + currentData.length + ' entries)';
-            }
         }
 
         function refreshView() {
@@ -1037,24 +685,11 @@ METATRANSCRIPTOMIC_BCT_19 1.91000 5413`;
             createChart();
         }
 
-        // Event listeners
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    loadData(e.target.result, file.name);
-                };
-                reader.readAsText(file);
-            }
-        });
-
         document.getElementById('techniqueFilter').addEventListener('change', refreshView);
         document.getElementById('typeFilter').addEventListener('change', refreshView);
         document.getElementById('chartType').addEventListener('change', createChart);
         document.getElementById('logScale').addEventListener('change', createChart);
 
-        // Initialize with default data
         loadData(defaultData);
     </script>
 </body>
