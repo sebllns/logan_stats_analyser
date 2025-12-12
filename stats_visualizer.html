@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,48 +13,143 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         .container {
             margin: 0 auto;
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
         }
+
         .controls {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 6px;
             margin-bottom: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
+
         .control-group {
             display: flex;
             flex-direction: column;
         }
+
         label {
             font-weight: bold;
             margin-bottom: 5px;
             color: #555;
+            font-size: 14px;
         }
+
         select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
         }
+
+        .multi-select-container {
+            position: relative;
+        }
+
+        .multi-select-toggle {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .multi-select-toggle:hover {
+            background: #f9f9f9;
+        }
+
+        .multi-select-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 10;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .multi-select-dropdown.open {
+            display: block;
+        }
+
+        .multi-select-buttons {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+        }
+
+        .multi-select-buttons button {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .multi-select-buttons button:hover {
+            background: #f0f0f0;
+        }
+
+        .multi-select-option {
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .multi-select-option:hover {
+            background: #f0f0f0;
+        }
+
+        .multi-select-option input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .arrow {
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .arrow.open {
+            transform: rotate(180deg);
+        }
+
         .stats-panel {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
+
         .stat-card {
             background: #f8f9fa;
             padding: 15px;
@@ -61,15 +157,18 @@
             text-align: center;
             border-left: 4px solid #007bff;
         }
+
         .stat-value {
             font-size: 24px;
             font-weight: bold;
             color: #007bff;
         }
+
         .stat-label {
             color: #666;
             font-size: 14px;
         }
+
         .chart-container {
             position: relative;
             height: 400px;
@@ -78,6 +177,7 @@
             border-radius: 6px;
             padding: 10px;
         }
+
         .table-controls {
             display: flex;
             justify-content: space-between;
@@ -87,21 +187,26 @@
             background: #f8f9fa;
             border-radius: 6px;
         }
+
         .data-table {
             max-height: 400px;
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 6px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
+
         th {
             background: #f8f9fa;
             position: sticky;
@@ -110,40 +215,62 @@
             cursor: pointer;
             user-select: none;
         }
+
         th:hover {
             background: #e9ecef;
         }
+
         .sort-indicator {
             margin-left: 5px;
             font-size: 12px;
             color: #666;
         }
+
         tr:hover {
             background: #f5f5f5;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Logan Stats Visualizer</h1>
-        
+
         <div class="controls">
-            
-            
             <div class="control-group">
-                <label for="techniqueFilter">Filter by Technique:</label>
-                <select id="techniqueFilter">
-                    <option value="all">All Techniques</option>
-                </select>
+                <label>Filter by Technique:</label>
+                <div class="multi-select-container" id="techniqueContainer">
+                    <div class="multi-select-toggle" id="techniqueToggle">
+                        <span id="techniqueText">Select techniques...</span>
+                        <span class="arrow" id="techniqueArrow">▼</span>
+                    </div>
+                    <div class="multi-select-dropdown" id="techniqueDropdown">
+                        <div class="multi-select-buttons">
+                            <button id="techniqueSelectAll">All</button>
+                            <button id="techniqueSelectNone">None</button>
+                        </div>
+                        <div id="techniqueOptions"></div>
+                    </div>
+                </div>
             </div>
-            
+
             <div class="control-group">
-                <label for="typeFilter">Filter by Type:</label>
-                <select id="typeFilter">
-                    <option value="all">All Types</option>
-                </select>
+                <label>Filter by Type:</label>
+                <div class="multi-select-container" id="typeContainer">
+                    <div class="multi-select-toggle" id="typeToggle">
+                        <span id="typeText">Select types...</span>
+                        <span class="arrow" id="typeArrow">▼</span>
+                    </div>
+                    <div class="multi-select-dropdown" id="typeDropdown">
+                        <div class="multi-select-buttons">
+                            <button id="typeSelectAll">All</button>
+                            <button id="typeSelectNone">None</button>
+                        </div>
+                        <div id="typeOptions"></div>
+                    </div>
+                </div>
             </div>
-            
+
             <div class="control-group">
                 <label for="chartType">Chart Type:</label>
                 <select id="chartType">
@@ -153,7 +280,7 @@
                     <option value="box">Sample Count Distribution</option>
                 </select>
             </div>
-            
+
             <div class="control-group">
                 <label for="logScale">Log Scale:</label>
                 <select id="logScale">
@@ -199,9 +326,12 @@
                 <thead>
                     <tr>
                         <th onclick="sortTable('index')">Index<span class="sort-indicator" id="sort-index"></span></th>
-                        <th onclick="sortTable('category')">Category<span class="sort-indicator" id="sort-category"></span></th>
-                        <th onclick="sortTable('size')">Size (GB)<span class="sort-indicator" id="sort-size"></span></th>
-                        <th onclick="sortTable('sampleCount')">Sample Count<span class="sort-indicator" id="sort-sampleCount"></span></th>
+                        <th onclick="sortTable('category')">Category<span class="sort-indicator"
+                                id="sort-category"></span></th>
+                        <th onclick="sortTable('size')">Size (GB)<span class="sort-indicator" id="sort-size"></span>
+                        </th>
+                        <th onclick="sortTable('sampleCount')">Sample Count<span class="sort-indicator"
+                                id="sort-sampleCount"></span></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -218,6 +348,8 @@
         let techniques = new Set();
         let types = new Set();
         let sortState = { column: null, direction: 'asc' };
+        let selectedTechniques = new Set();
+        let selectedTypes = new Set();
 
         const categoryColors = [
             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
@@ -3096,6 +3228,90 @@ VIRALRNA_VRT_29 2.89000 1
 VIRALRNA_VRT_6 0.00198 1
 `;
 
+
+        function setupMultiSelect(containerId, optionsId, toggleId, dropdownId, textId, arrowId, allBtnId, noneBtnId, filterKey) {
+            const container = document.getElementById(containerId);
+            const toggle = document.getElementById(toggleId);
+            const dropdown = document.getElementById(dropdownId);
+            const arrow = document.getElementById(arrowId);
+            const text = document.getElementById(textId);
+            const allBtn = document.getElementById(allBtnId);
+            const noneBtn = document.getElementById(noneBtnId);
+            const optionsDiv = document.getElementById(optionsId);
+            const selectedSet = filterKey === 'technique' ? selectedTechniques : selectedTypes;
+            const sourceSet = filterKey === 'technique' ? techniques : types;
+
+            toggle.addEventListener('click', () => {
+                dropdown.classList.toggle('open');
+                arrow.classList.toggle('open');
+            });
+
+            allBtn.addEventListener('click', () => {
+                document.querySelectorAll(`#${optionsId} input[type="checkbox"]`).forEach(cb => {
+                    cb.checked = true;
+                    selectedSet.add(cb.value);
+                });
+                updateText();
+                refreshView();
+            });
+
+            noneBtn.addEventListener('click', () => {
+                document.querySelectorAll(`#${optionsId} input[type="checkbox"]`).forEach(cb => {
+                    cb.checked = false;
+                    selectedSet.delete(cb.value);
+                });
+                updateText();
+                refreshView();
+            });
+
+            function updateText() {
+                if (selectedSet.size === 0) {
+                    text.textContent = `Select ${filterKey}s...`;
+                } else if (selectedSet.size === 1) {
+                    text.textContent = Array.from(selectedSet)[0];
+                } else {
+                    text.textContent = `${selectedSet.size} selected`;
+                }
+            }
+
+            function renderOptions() {
+                optionsDiv.innerHTML = '';
+                Array.from(sourceSet).sort().forEach(item => {
+                    const label = document.createElement('label');
+                    label.className = 'multi-select-option';
+                    label.innerHTML = `<input type="checkbox" value="${item}"> ${item}`;
+
+                    const checkbox = label.querySelector('input');
+                    checkbox.checked = selectedSet.has(item);
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            selectedSet.add(item);
+                        } else {
+                            selectedSet.delete(item);
+                        }
+                        updateText();
+                        refreshView();
+                    });
+
+                    optionsDiv.appendChild(label);
+                });
+            }
+
+            window.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                    arrow.classList.remove('open');
+                }
+            });
+
+            function initialize() {
+                renderOptions();
+                updateText();
+            }
+
+            return { initialize, renderOptions };
+        }
+
         function sortTable(column) {
             if (sortState.column === column) {
                 sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
@@ -3155,18 +3371,18 @@ VIRALRNA_VRT_6 0.00198 1
                     const index = parts[0];
                     const size = parseFloat(parts[1]);
                     const sampleCount = parseInt(parts[2]);
-                    
+
                     const indexParts = index.split('_');
                     let technique = 'OTHER';
                     let type = 'OTHER';
                     let category = 'OTHER';
-                    
+
                     if (indexParts.length >= 2) {
                         technique = indexParts[0];
                         type = indexParts[1];
                         category = technique + '_' + type;
                     }
-                    
+
                     techniques.add(technique);
                     types.add(type);
                     categories.add(category);
@@ -3177,51 +3393,23 @@ VIRALRNA_VRT_6 0.00198 1
             return data;
         }
 
-        function updateCategoryFilter() {
-            const techniqueSelect = document.getElementById('techniqueFilter');
-            const typeSelect = document.getElementById('typeFilter');
-            
-            // Clear existing options
-            techniqueSelect.innerHTML = '<option value="all">All Techniques</option>';
-            typeSelect.innerHTML = '<option value="all">All Types</option>';
-            
-            // Add technique options
-            Array.from(techniques).sort().forEach(technique => {
-                const option = document.createElement('option');
-                option.value = technique;
-                option.textContent = technique;
-                techniqueSelect.appendChild(option);
-            });
-            
-            // Add type options
-            Array.from(types).sort().forEach(type => {
-                const option = document.createElement('option');
-                option.value = type;
-                option.textContent = type;
-                typeSelect.appendChild(option);
-            });
-        }
-
         function getFilteredData() {
-            const techniqueFilter = document.getElementById('techniqueFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-            
             return currentData.filter(item => {
-                const techniqueMatch = techniqueFilter === 'all' || item.technique === techniqueFilter;
-                const typeMatch = typeFilter === 'all' || item.type === typeFilter;
+                const techniqueMatch = selectedTechniques.size === 0 || selectedTechniques.has(item.technique);
+                const typeMatch = selectedTypes.size === 0 || selectedTypes.has(item.type);
                 return techniqueMatch && typeMatch;
             });
         }
 
         function updateStats() {
             const data = filteredData;
-            
+
             document.getElementById('totalEntries').textContent = data.length;
-            document.getElementById('totalSize').textContent = data.length > 0 ? 
+            document.getElementById('totalSize').textContent = data.length > 0 ?
                 (data.reduce((sum, item) => sum + item.size, 0)).toLocaleString() : '0';
-            document.getElementById('totalSamples').textContent = 
+            document.getElementById('totalSamples').textContent =
                 data.reduce((sum, item) => sum + item.sampleCount, 0).toLocaleString();
-            
+
             const uniqueCategories = new Set(data.map(item => item.category)).size;
             document.getElementById('categoryCount').textContent = uniqueCategories;
         }
@@ -3242,7 +3430,7 @@ VIRALRNA_VRT_6 0.00198 1
         function createChart() {
             const canvas = document.getElementById('mainChart');
             const ctx = canvas.getContext('2d');
-            
+
             if (currentChart) {
                 currentChart.destroy();
             }
@@ -3273,7 +3461,7 @@ VIRALRNA_VRT_6 0.00198 1
 
         function createScatterChart(data, logScale) {
             const datasets = {};
-            
+
             data.forEach(item => {
                 if (!datasets[item.category]) {
                     datasets[item.category] = {
@@ -3329,7 +3517,7 @@ VIRALRNA_VRT_6 0.00198 1
 
         function createBarChart(data) {
             const categoryStats = {};
-            
+
             data.forEach(item => {
                 if (!categoryStats[item.category]) {
                     categoryStats[item.category] = { totalSize: 0, totalSamples: 0, count: 0 };
@@ -3411,41 +3599,41 @@ VIRALRNA_VRT_6 0.00198 1
         function createHistogram(data, field, logScale) {
             const values = data.map(item => item[field]).filter(v => v > 0);
             if (values.length === 0) {
-                return { 
-                    type: 'bar', 
-                    data: { labels: [], datasets: [] }, 
+                return {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false
                     }
                 };
             }
-            
+
             const min = Math.min(...values);
             const max = Math.max(...values);
-            
+
             let binCount = Math.sqrt(values.length);
             binCount = Math.min(20, Math.max(5, binCount));
             binCount = Math.floor(binCount);
-            
+
             if (!Number.isFinite(binCount) || binCount <= 0) {
                 binCount = 10;
             }
-            
+
             const bins = Array(binCount).fill(0);
             const binLabels = [];
             const isLogX = logScale === 'x' || logScale === 'both';
-            
+
             if (isLogX && min > 0) {
                 const logMin = Math.log10(min);
                 const logMax = Math.log10(max);
                 const logBinSize = (logMax - logMin) / binCount;
                 const binEdges = [];
-                
+
                 for (let i = 0; i <= binCount; i++) {
                     binEdges.push(Math.pow(10, logMin + i * logBinSize));
                 }
-                
+
                 for (let i = 0; i < binCount; i++) {
                     const start = binEdges[i];
                     const end = binEdges[i + 1];
@@ -3455,7 +3643,7 @@ VIRALRNA_VRT_6 0.00198 1
                         binLabels.push(start.toFixed(2) + '-' + end.toFixed(2));
                     }
                 }
-                
+
                 values.forEach(value => {
                     for (let i = 0; i < binCount; i++) {
                         if (value >= binEdges[i] && (i === binCount - 1 || value < binEdges[i + 1])) {
@@ -3466,13 +3654,13 @@ VIRALRNA_VRT_6 0.00198 1
                 });
             } else {
                 const binSize = (max - min) / binCount;
-                
+
                 for (let i = 0; i < binCount; i++) {
                     const start = min + i * binSize;
                     const end = min + (i + 1) * binSize;
                     binLabels.push(start.toFixed(2) + '-' + end.toFixed(2));
                 }
-                
+
                 values.forEach(value => {
                     let binIndex = Math.floor((value - min) / binSize);
                     if (binIndex === binCount) binIndex = binCount - 1;
@@ -3527,7 +3715,6 @@ VIRALRNA_VRT_6 0.00198 1
         function loadData(text) {
             currentData = parseData(text);
             filteredData = getFilteredData();
-            updateCategoryFilter();
             updateStats();
             updateTable();
             createChart();
@@ -3540,12 +3727,25 @@ VIRALRNA_VRT_6 0.00198 1
             createChart();
         }
 
-        document.getElementById('techniqueFilter').addEventListener('change', refreshView);
-        document.getElementById('typeFilter').addEventListener('change', refreshView);
         document.getElementById('chartType').addEventListener('change', createChart);
         document.getElementById('logScale').addEventListener('change', createChart);
 
+        const techniqueSelector = setupMultiSelect(
+            'techniqueContainer', 'techniqueOptions', 'techniqueToggle',
+            'techniqueDropdown', 'techniqueText', 'techniqueArrow',
+            'techniqueSelectAll', 'techniqueSelectNone', 'technique'
+        );
+
+        const typeSelector = setupMultiSelect(
+            'typeContainer', 'typeOptions', 'typeToggle',
+            'typeDropdown', 'typeText', 'typeArrow',
+            'typeSelectAll', 'typeSelectNone', 'type'
+        );
+
         loadData(defaultData);
+        techniqueSelector.initialize();
+        typeSelector.initialize();
     </script>
 </body>
+
 </html>
